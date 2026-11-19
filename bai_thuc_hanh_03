@@ -1,1 +1,588 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class Vehicle{
+	int vehicleID;
+	string vehicleType;
+	double entryTime;
+	double parkingDuration;
+	double parkingFee;
+	public:
+		Vehicle(){
+			vehicleID=0;
+			vehicleType="";
+			entryTime=0.0;
+			parkingDuration=0.0;
+			parkingFee=0.0;
+		}
+		int getVehicleID() {
+    		return vehicleID;
+		}
 
+		string getVehicleType() {
+    		return vehicleType;
+		}
+
+		double getEntryTime() {
+    		return entryTime;
+		}
+
+		double getParkingDuration() {
+    		return parkingDuration;
+		}
+
+		double getParkingFee() {
+    		return parkingFee;
+		}
+
+		void setVehicleID(int id) {
+    		vehicleID = id;
+		}
+
+		void setVehicleType(string type) {
+    		vehicleType = type;
+		}
+
+		void setEntryTime(double time) {
+    		entryTime = time;
+		}
+
+		void setParkingDuration(double duration) {
+    		parkingDuration = duration;
+		}
+
+		void setParkingFee(double fee) {
+    		parkingFee = fee;
+		}
+		double calculateFee() {
+			double gia = (vehicleType == "Car") ? 6.0 : (vehicleType == "Motorcycle") ? 4.0 : 2.0;
+    		bool cao_diem = (entryTime >= 6 && entryTime <= 9) || (entryTime >= 15 && entryTime <= 18);
+    		double tong = 0;
+    		for (int h = 0; h < parkingDuration; ++h) {
+        		if (h < 2) tong += gia * (cao_diem ? 1.30 : 0.95);
+        		else       tong += gia * 0.90;
+    		}
+    		parkingFee=tong;
+    		return parkingFee;
+		}
+		void display(){
+			cout<<"Ma phuong tien: "<<vehicleID<<endl;
+			cout<<"Loai phuong tien: "<<vehicleType<<endl;
+			cout<<"Thoi gian vao: "<<entryTime<<endl;
+			cout<<"Thoi gian gui: "<<parkingDuration<<endl;
+			cout<<"Phi gui xe: "<<parkingFee<<endl;
+		}
+};
+class ParkingLot{
+	int parkID;
+	char size;
+	int capacity;
+	int currentVehicleCount;
+	Vehicle** vehicles;
+	void resize(int newCapacity) {
+        if (newCapacity < currentVehicleCount ||
+            newCapacity <= 0)
+            return;
+
+        Vehicle** newVehicles = new Vehicle*[newCapacity];
+
+        for (int i = 0; i < newCapacity; i++) {
+            newVehicles[i] = NULL;
+        }
+
+        for (int i = 0; i < currentVehicleCount; i++) {
+            newVehicles[i] = vehicles[i];
+            vehicles[i] = NULL;
+        }
+
+        delete[] vehicles;
+        vehicles = NULL;
+
+        vehicles = newVehicles;
+        capacity = newCapacity;
+    }
+	public:
+		ParkingLot(int id,char s){
+			parkID=id;
+			size=s;
+			currentVehicleCount=0;
+			if(size=='S') capacity=1;
+			else if(size=='M') capacity=2;
+			else if(size=='L') capacity=3;
+			else capacity=1;
+			vehicles=new Vehicle*[capacity];
+			for(int i=0;i<capacity;i++) vehicles[i]=NULL;
+		}
+		~ParkingLot() {
+        	for (int i = 0; i < currentVehicleCount; i++) {
+            	delete vehicles[i];
+            	vehicles[i] = NULL;
+        	}
+
+        	delete[] vehicles;
+        	vehicles = NULL;
+    	}
+    	ParkingLot(const ParkingLot& other) {
+        	parkID = other.parkID;
+        	size = other.size;
+        	capacity = other.capacity;
+        	currentVehicleCount = other.currentVehicleCount;
+
+        	vehicles = new Vehicle*[capacity];
+
+        	for (int i = 0; i < capacity; i++) {
+            	vehicles[i] = NULL;
+            	if (other.vehicles[i] != NULL) {
+               		vehicles[i] = new Vehicle(*other.vehicles[i]);
+            	}
+        	}
+    	}
+    	ParkingLot& operator=(const ParkingLot& other) {
+        	if (this == &other)
+            	return *this;
+
+        	Vehicle** newVehicles =
+            	new Vehicle*[other.capacity];
+
+        	for (int i = 0; i < other.capacity; i++) {
+            	newVehicles[i] = NULL;
+        	}
+
+        	try {
+            	for (int i = 0; i < other.capacity; i++) {
+                	if (other.vehicles[i] != NULL) {
+                    	newVehicles[i] =new Vehicle(*other.vehicles[i]);
+                	}
+            	}
+        	}
+        	catch (...) {
+            	for (int i = 0; i < other.capacity; i++) {
+                	delete newVehicles[i];
+            	}
+            	delete[] newVehicles;
+            	throw;
+        	}
+
+        	for (int i = 0; i < capacity; i++) {
+            	delete vehicles[i];
+        	}
+
+        	delete[] vehicles;
+        	vehicles = NULL;
+
+        	parkID = other.parkID;
+        	size = other.size;
+        	capacity = other.capacity;
+        	currentVehicleCount = other.currentVehicleCount;
+        	vehicles = newVehicles;
+        	return *this;
+    	}
+    	bool addVehicle(const Vehicle& v) {
+        	if (currentVehicleCount == capacity) {
+            	resize(capacity * 2);
+        	}
+
+        	for (int i = 0; i < capacity; i++) {
+            	if (vehicles[i] == NULL) {
+                	vehicles[i] = new Vehicle(v);
+                	currentVehicleCount++;
+              	  	return true;
+            	}
+        	}
+        	return false;
+    	}
+    	bool removeVehicle(int vID) {
+        	for (int i = 0; i < currentVehicleCount; i++) {
+            	if (vehicles[i] != NULL && vehicles[i]->getVehicleID() == vID) {
+                	delete vehicles[i];
+                	vehicles[i] = NULL;
+                	for (int j = i;j < currentVehicleCount - 1; j++) {
+                    	vehicles[j] = vehicles[j + 1];
+                	}
+                	currentVehicleCount--;
+                	vehicles[currentVehicleCount] = NULL;
+                	return true;
+            	}
+        	}
+        	return false;
+        } 
+        int getParkID() const {
+    		return parkID;
+		}
+
+		int getCurrentVehicleCount() const {
+    		return currentVehicleCount;
+		}
+
+		Vehicle* getVehicleAt(int index) const {
+    		if (index < 0 || index >= currentVehicleCount)
+        	return NULL;
+
+    	return vehicles[index];
+		}
+
+		void display() const {
+    		cout << "\nMa bai do: " << parkID << endl;
+    		cout << "Kich thuoc: " << size << endl;
+    		cout << "Suc chua: " << capacity << endl;
+    		cout << "So xe hien co: " << currentVehicleCount << endl;
+		}
+};
+class SystemInterface {
+private:
+    int lotCapacity;
+    int currentLotCount;
+    ParkingLot** parkingLots;
+	void resizeSystem(int newCapacity) {
+        if (newCapacity <= lotCapacity)
+            return;
+
+        ParkingLot** newLots =
+            new ParkingLot*[newCapacity];
+
+        for (int i = 0; i < newCapacity; i++)
+            newLots[i] = NULL;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            newLots[i] = parkingLots[i];
+            parkingLots[i] = NULL;
+        }
+
+        delete[] parkingLots;
+        parkingLots = NULL;
+
+        parkingLots = newLots;
+        lotCapacity = newCapacity;
+    }
+public:
+    SystemInterface() {
+        lotCapacity = 5;
+        currentLotCount = 0;
+
+        parkingLots = new ParkingLot*[lotCapacity];
+
+        for (int i = 0; i < lotCapacity; i++) {
+            parkingLots[i] = NULL;
+        }
+    }
+
+    ~SystemInterface() {
+        for (int i = 0; i < currentLotCount; i++) {
+            delete parkingLots[i];
+            parkingLots[i] = NULL;
+        }
+
+        delete[] parkingLots;
+        parkingLots = NULL;
+    }
+
+    SystemInterface(const SystemInterface& other) {
+        lotCapacity = other.lotCapacity;
+        currentLotCount = other.currentLotCount;
+
+        parkingLots = new ParkingLot*[lotCapacity];
+
+        for (int i = 0; i < lotCapacity; i++) {
+            parkingLots[i] = NULL;
+
+            if (other.parkingLots[i] != NULL) {
+                parkingLots[i] =
+                    new ParkingLot(*other.parkingLots[i]);
+            }
+        }
+    }
+
+    SystemInterface& operator=(const SystemInterface& other) {
+        if (this == &other)
+            return *this;
+
+        ParkingLot** newLots =
+            new ParkingLot*[other.lotCapacity];
+
+        for (int i = 0; i < other.lotCapacity; i++) {
+            newLots[i] = NULL;
+        }
+
+        try {
+            for (int i = 0; i < other.currentLotCount; i++) {
+                if (other.parkingLots[i] != NULL) {
+                    newLots[i] =
+                        new ParkingLot(*other.parkingLots[i]);
+                }
+            }
+        }
+        catch (...) {
+            for (int i = 0; i < other.lotCapacity; i++) {
+                delete newLots[i];
+            }
+
+            delete[] newLots;
+            throw;
+        }
+
+        for (int i = 0; i < currentLotCount; i++) {
+            delete parkingLots[i];
+        }
+
+        delete[] parkingLots;
+        parkingLots = NULL;
+
+        lotCapacity = other.lotCapacity;
+        currentLotCount = other.currentLotCount;
+        parkingLots = newLots;
+
+        return *this;
+    }
+	void addParkingLot() {
+        int id;
+        char s;
+
+        cout << "Nhap ma bai do: ";
+        cin >> id;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            if (parkingLots[i]->getParkID() == id) {
+                cout << "Ma bai do da ton tai!\n";
+                return;
+            }
+        }
+
+        cout << "Nhap kich thuoc S/M/L: ";
+        cin >> s;
+
+        if (s != 'S' && s != 'M' && s != 'L') {
+            cout << "Kich thuoc khong hop le!\n";
+            return;
+        }
+
+        if (currentLotCount == lotCapacity)
+            resizeSystem(lotCapacity * 2);
+
+        parkingLots[currentLotCount] =
+            new ParkingLot(id, s);
+
+        currentLotCount++;
+
+        cout << "Tao bai do thanh cong!\n";
+    }
+    void addVehicleToLot() {
+        int id;
+
+        cout << "Nhap ma bai do: ";
+        cin >> id;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            if (parkingLots[i]->getParkID() == id) {
+                Vehicle v;
+                int vehicleID;
+                string type;
+                double time, duration;
+
+                cout << "Nhap ma xe: ";
+                cin >> vehicleID;
+
+                cout << "Nhap loai xe: ";
+                cin >> type;
+
+                cout << "Nhap gio vao (VD: 7.30): ";
+                cin >> time;
+
+                cout << "Nhap thoi gian gui: ";
+                cin >> duration;
+
+                v.setVehicleID(vehicleID);
+                v.setVehicleType(type);
+                v.setEntryTime(time);
+                v.setParkingDuration(duration);
+                v.calculateFee();
+
+                if (parkingLots[i]->addVehicle(v))
+                    cout << "Them xe thanh cong!\n";
+                else
+                    cout << "Them xe that bai!\n";
+
+                return;
+            }
+        }
+
+        cout << "Khong tim thay bai do!\n";
+    }
+    void removeParkingLot() {
+        int id;
+
+        cout << "Nhap ma bai do can xoa: ";
+        cin >> id;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            if (parkingLots[i]->getParkID() == id) {
+                delete parkingLots[i];
+                parkingLots[i] = NULL;
+
+                for (int j = i; j < currentLotCount - 1; j++)
+                    parkingLots[j] = parkingLots[j + 1];
+
+                currentLotCount--;
+                parkingLots[currentLotCount] = NULL;
+
+                cout << "Xoa bai do thanh cong!\n";
+                return;
+            }
+        }
+
+        cout << "Khong tim thay bai do!\n";
+    }
+    void removeVehicleFromLot() {
+        int lotID, vehicleID;
+
+        cout << "Nhap ma bai do: ";
+        cin >> lotID;
+
+        cout << "Nhap ma xe: ";
+        cin >> vehicleID;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            if (parkingLots[i]->getParkID() == lotID) {
+                if (parkingLots[i]->removeVehicle(vehicleID))
+                    cout << "Xoa xe thanh cong!\n";
+                else
+                    cout << "Khong tim thay xe!\n";
+
+                return;
+            }
+        }
+
+        cout << "Khong tim thay bai do!\n";
+    }
+    void displayAllLots() {
+        if (currentLotCount == 0) {
+            cout << "He thong chua co bai do!\n";
+            return;
+        }
+
+        for (int i = 0; i < currentLotCount; i++)
+            parkingLots[i]->display();
+    }
+
+    void displayVehiclesByLot() {
+        int id;
+
+        cout << "Nhap ma bai do: ";
+        cin >> id;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            if (parkingLots[i]->getParkID() == id) {
+                int count =
+                    parkingLots[i]->getCurrentVehicleCount();
+
+                for (int j = 0; j < count; j++) {
+                    Vehicle* v =
+                        parkingLots[i]->getVehicleAt(j);
+
+                    if (v != NULL)
+                        v->display();
+                }
+
+                return;
+            }
+        }
+
+        cout << "Khong tim thay bai do!\n";
+    }
+    void displayVehiclesByType() {
+        string type;
+        bool found = false;
+
+        cout << "Nhap loai xe: ";
+        cin >> type;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            int count =
+                parkingLots[i]->getCurrentVehicleCount();
+
+            for (int j = 0; j < count; j++) {
+                Vehicle* v =
+                    parkingLots[i]->getVehicleAt(j);
+
+                if (v != NULL &&
+                    v->getVehicleType() == type) {
+                    v->display();
+                    found = true;
+                }
+            }
+        }
+
+        if (!found)
+            cout << "Khong tim thay xe!\n";
+    }
+    void calculateAverageFee() {
+        double total = 0;
+        int count = 0;
+
+        for (int i = 0; i < currentLotCount; i++) {
+            int n = parkingLots[i]->getCurrentVehicleCount();
+
+            for (int j = 0; j < n; j++) {
+                Vehicle* v =
+                    parkingLots[i]->getVehicleAt(j);
+
+                if (v != NULL) {
+                    total += v->getParkingFee();
+                    count++;
+                }
+            }
+        }
+
+        if (count == 0) {
+            cout << "Chua co xe!\n";
+            return;
+        }
+
+        cout << "Tong so xe: " << count << endl;
+        cout << "Tong phi: " << total << endl;
+        cout << "Phi trung binh: " << total / count << endl;
+    }
+    void runMenu() {
+	    int choice;
+	
+	    do {
+	        cout << "\n========== PARKING MANAGEMENT SYSTEM ==========\n";
+	        cout << "1. Tao bai do xe moi\n";
+	        cout << "2. Them xe vao bai do\n";
+	        cout << "3. Xoa mot bai do xe\n";
+	        cout << "4. Lay xe ra khoi bai do\n";
+	        cout << "5. Hien thi danh sach tat ca bai do\n";
+	        cout << "6. Hien thi danh sach xe theo bai cu the\n";
+	        cout << "7. Liet ke xe theo loai phuong tien\n";
+	        cout << "8. Tinh phi do xe trung binh\n";
+	        cout << "9. Thoat chuong trinh\n";
+	
+	        cout << "Nhap lua chon: ";
+	        cin >> choice;
+	
+	        switch (choice) {
+	            case 1: addParkingLot(); break;
+	            case 2: addVehicleToLot(); break;
+	            case 3: removeParkingLot(); break;
+	            case 4: removeVehicleFromLot(); break;
+	            case 5: displayAllLots(); break;
+	            case 6: displayVehiclesByLot(); break;
+	            case 7: displayVehiclesByType(); break;
+	            case 8: calculateAverageFee(); break;
+	
+	            case 9:
+	                cout << "Dang giai phong bo nho...\n";
+	                cout << "Ket thuc chuong trinh!\n";
+	                break;
+	
+	            default:
+	                cout << "Lua chon khong hop le!\n";
+	        }
+	
+	    } while (choice != 9);
+	}
+};
+int main() {
+    SystemInterface system;
+    system.runMenu();
+    return 0;
+}
