@@ -1,1 +1,197 @@
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <limits>
+using namespace std;
+class MatHang{
+	string maMatHang;
+	string tenHang;
+	double donGia;
+	int soLuong;
+	public:
+		MatHang(){
+			maMatHang="";
+			tenHang="";
+			donGia=0.0;
+			soLuong=0;
+		}
+		void nhap(){
+			cout<<"Nhap ma mat hang: ";
+			getline(cin,maMatHang);
+			cout<<"Nhap ten mat hang: ";
+			getline(cin,tenHang);
+			cout<<"Nhan don gia: ";
+			cin>>donGia;
+			cout<<"Nhap so luong: ";
+			cin>>soLuong;
+			cin.ignore();
+		}
+		void xuat(){
+			cout << left << setw(15) << maMatHang
+             << setw(20) << tenHang
+             << setw(15) << soLuong
+             << setw(15) << donGia
+             << setw(15) << thanhTien() << endl;
+		}
+		double thanhTien(){
+			return donGia*soLuong;
+		}
+};
+class KhachHang{
+	string maKhachHang,hoTen,diaChi,sdt;
+	public:
+		KhachHang(){
+			maKhachHang="";
+			hoTen="";
+			diaChi="";
+			sdt="";
+		}
+		void nhap(){
+			cout<<"Nhap ma khach hang: ";
+			getline(cin,maKhachHang);
+			cout<<"Nhap ten khach hang: ";
+			getline(cin,hoTen);
+			cout<<"Nhap dia chi nhan: ";
+			getline(cin,diaChi);
+			cout<<"Nhap sdt khach hang: ";
+			getline(cin,sdt);
+		}
+		void xuat(){
+			cout<<"Ma khach hang: "<<maKhachHang<<endl;
+			cout<<"Ho ten khach hang: "<<hoTen<<endl;
+			cout<<"Dia chi nhan: "<<diaChi<<endl;
+			cout<<"So dien thoat khach hang: "<<sdt<<endl;
+		}
+};
+class NguoiBan{
+	string maSoThue,hoTen,diaChi,email,sdt;
+	public:
+		NguoiBan(){
+			maSoThue="";
+			hoTen="";
+			diaChi="";
+			email="";
+			sdt="";
+		}
+		void nhap(){
+			cout<<"Nhap ma so thue: ";
+			getline(cin,maSoThue);
+			cout<<"Nhap ten nguoi ban: ";
+			getline(cin,hoTen);
+			cout<<"Nhap dia chi nguoi ban: ";
+			getline(cin,diaChi);
+			cout<<"Nhap email nguoi ban: ";
+			getline(cin,email);
+			cout<<"Nhap sdt nguoi ban: ";
+			getline(cin,sdt);
+		}
+		void xuat(){
+			cout<<"Ma so thue: "<<maSoThue<<endl;
+			cout<<"Ho ten nguoi ban: "<<hoTen<<endl;
+			cout<<"Dia chi nguoi ban: "<<diaChi<<endl;
+			cout<<"Email nguoi ban: "<<email<<endl;
+			cout<<"So dien thoai nguoi ban: "<<sdt<<endl;
+		}
+};
+class HoaDon{
+	string maHoaDon,ngayLap;
+	KhachHang *KH;
+	NguoiBan *NB;
+	MatHang *DSMH;
+	int slMH;
+	public:
+		HoaDon(){
+			maHoaDon="";
+			ngayLap="";
+			KH=new KhachHang;
+			NB=new NguoiBan;
+			DSMH=NULL;
+			slMH=0;
+		}
+		void nhap() {
+        	cout << "\n===== NHAP HOA DON =====\n";	
+	        cout << "Nhap ma hoa don: ";
+	        getline(cin, maHoaDon);
+	
+	        cout << "Nhap ngay lap: ";
+	        getline(cin, ngayLap);
+	
+	        cout << "\n===== THONG TIN KHACH HANG =====\n";
+	        KH->nhap();
+	
+	        cout << "\n===== THONG TIN NGUOI BAN =====\n";
+	        NB->nhap();
+	
+	        cout << "\nNhap so luong mat hang: ";
+	        cin >> slMH;
+	        cin.ignore();
+	
+	        DSMH = new MatHang[slMH];
+	
+	        for (int i = 0; i < slMH; i++) {
+	            cout << "\nNhap mat hang thu " << i + 1 << endl;
+	            DSMH[i].nhap();
+	        }
+	    }
+	
+	    double tongTien() {
+	        double tong = 0;
+	
+	        for (int i = 0; i < slMH; i++) {
+	            tong += DSMH[i].thanhTien();
+	        }
+	
+	        return tong;
+	    }
+	
+		void xuat() {
+	        cout << "\n========== HOA DON ==========\n";
+	
+	        cout << "Ma hoa don: " << maHoaDon << endl;
+	        cout << "Ngay lap: " << ngayLap << endl;
+	
+	        cout << "\n===== THONG TIN KHACH HANG =====\n";
+	        KH->xuat();
+	
+	        cout << "\n===== THONG TIN NGUOI BAN =====\n";
+	        NB->xuat();
+	
+	        cout << "\n===== DANH SACH MAT HANG =====\n";
+	
+	        cout << left << setw(15) << "Ma mat hang"
+	             << setw(20) << "Ten hang"
+	             << setw(15) << "So luong"
+	             << setw(15) << "Don gia"
+	             << setw(15) << "Thanh tien" << endl;
+	
+	        for (int i = 0; i < slMH; i++) {
+	            DSMH[i].xuat();
+	        }
+	
+	        cout << fixed << setprecision(0);
+	
+	        cout << "\nTong tien: " << tongTien() << " VND";
+	        cout << "\nThue VAT: " << tongTien() * 0.1 << " VND";
+	        cout << "\nTong thanh toan: "
+	             << tongTien() * 1.1 << " VND";
+	
+	        cout << "\n==============================\n";
+	    }
+	
+	    ~HoaDon() {
+	        delete KH;
+	        delete NB;
+	        delete[] DSMH;
+	    }
+};
 
+int main() {
+    HoaDon hd;
+
+    hd.nhap();
+
+    cout << "\n\n";
+    hd.xuat();
+
+    return 0;
+}
