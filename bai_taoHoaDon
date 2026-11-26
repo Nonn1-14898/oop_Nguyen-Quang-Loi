@@ -1,0 +1,177 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class KH{
+		string tenKH;
+		int maKH;
+		string diaChi;
+		int sdt;
+	public:
+		KH();
+		void nhap();
+		void in();
+};
+KH::KH(){
+	tenKH="";
+	maKH=0;
+	diaChi="";
+	sdt=0;
+}
+void KH::nhap(){
+	cout<<"Nhap ten khach hang: ";
+	getline(cin,tenKH);
+	cout<<"Nhap ma khach hang: ";
+	cin>>maKH;
+	cin.ignore();
+	cout<<"Nhap dia chi khach hang: ";
+	getline(cin,diaChi);
+	cout<<"Nhap so dien thoai khach hang: ";
+	cin>>sdt;
+	cin.ignore();
+}
+void KH::in(){
+	cout<<"Ten khach hang: "<<tenKH;
+	cout<<" Ma khach hang: "<<maKH;
+	cout<<" Dia chi khach hang: "<<diaChi;
+	cout<<" So dien thoai khach hang: "<<sdt<<endl;
+}
+
+
+class CCH{
+		string tenCCH;
+		int maSoThue;
+		int maCCH;
+		string diaChi;
+		int sdt;
+	public:
+		CCH();
+		void nhap();
+		void in();
+};
+CCH::CCH(){
+	tenCCH="";
+	maCCH=0;
+	maSoThue=0;
+	diaChi="";
+	sdt=0;
+}
+void CCH::nhap(){
+	cout<<"Nhap ten chu cua hang: ";
+	getline(cin,tenCCH);
+	cout<<"Nhap ma chu cua hang: ";
+	cin>>maCCH;
+	cout<<"Nhap ma so thue: ";
+	cin>>maSoThue;
+	cin.ignore();
+	cout<<"Nhap dia chi chu cua hang: ";
+	getline(cin,diaChi);
+	cout<<"Nhap so dien thoai chu cua hang: ";
+	cin>>sdt;
+	cin.ignore();
+}
+void CCH::in(){
+	cout<<"Ten chu cua hang: "<<tenCCH;
+	cout<<" Ma chu cua hang: "<<maCCH;
+	cout<<" Ma so thue: "<<maSoThue;
+	cout<<" Dia chi chu cua hang: "<<diaChi;
+	cout<<" So dien thoai chu cua hang: "<<sdt<<endl;
+}
+
+class HH{
+		string tenHH;
+		int maHH;
+		int sl;
+		int donGia;
+		string donVi;
+	public:
+		HH();
+		void nhap();
+		void in();
+		float tinhTien();
+};
+HH::HH(){
+	tenHH="";
+	maHH=0;
+	sl=0;
+	donGia=0;
+	donVi="";
+}
+void HH::nhap(){
+	cout<<"Nhap ten hang hoa: ";
+	getline(cin,tenHH);
+	cout<<"Nhap ma hang hoa: ";
+	cin>>maHH;
+	cout<<"Nhap so luong hang hoa: ";
+	cin>>sl;
+	cout<<"Nhap don gia: ";
+	cin>>donGia;
+	cout<<"Nhap don vi tinh: ";
+	cin>>donVi;
+	cin.ignore();
+}
+void HH::in(){
+	cout<<"Ten hang hoa: "<<tenHH;
+	cout<<" Ma hang hoa: "<<maHH;
+	cout<<" So luong hang hoa: "<<sl;
+	cout<<" Don gia: "<<donGia;
+	cout<<" Don vi tinh: "<<donVi;
+	cout<<" Thanh tien: "<<tinhTien()<<endl;
+}
+float HH::tinhTien(){
+	return donGia*sl;
+}
+
+class HoaDon{
+		CCH x;
+		KH y;
+		int slHH;
+		HH *a;
+	public:
+		HoaDon();
+		void nhap();
+		void in();
+		int tongTien();
+};
+HoaDon::HoaDon(){
+	a=NULL;
+	slHH=0;
+}
+void HoaDon::nhap(){
+	cout<<"Nhap hoa don."<<endl;
+	x.nhap();
+	y.nhap();
+	cout<<"Nhap so luong hang hoa: ";
+	cin>>slHH;
+	cin.ignore();
+	a=new HH[slHH];
+	for(int i=0;i<slHH;i++){
+		cout<<"\nHang hoa "<<i+1<<endl;
+		a[i].nhap();
+	}
+}
+int HoaDon::tongTien(){
+	int tong=0;
+	for(int i=0;i<slHH;i++){
+		tong +=a[i].tinhTien();
+	}
+	return tong;
+}
+void HoaDon::in(){
+	cout<<"\nHoa don"<<endl;
+	cout<<"Thong tin chu cua hang"<<endl;
+	x.in();
+	cout<<"Thong tin khach hang"<<endl;
+	y.in();
+	cout<<"Thong tin hang hoa"<<endl;
+	for(int i=0;i<slHH;i++){
+		a[i].in();
+	}
+	cout<<"Tong tien: "<<tongTien()<<endl;
+}
+
+int main(){
+	HoaDon h1;
+	h1.nhap();
+	h1.in();
+	return 0;
+}
